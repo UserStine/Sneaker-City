@@ -10,6 +10,10 @@
         public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public ICollection<CartItem> CartItem { get; set; }
+
+
     }
 
 }

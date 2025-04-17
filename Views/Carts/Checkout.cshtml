@@ -1,0 +1,103 @@
+﻿@model Sneaker_City.Models.ViewModels.CheckoutViewModel
+@{
+    // ViewData["Title"] = "Checkout";
+    var shipping = new ShippingInfo();
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<div class="container mt-5">
+    <h2>CHECKOUT</h2>
+
+
+    <div class="mb-4">
+        <form asp-action="Index" method="post">
+            <h4>Shipping Information</h4>
+
+            <div class="mb-3">
+                <label asp-for="ShippingInfo.FirstName" class="form-label"></label>
+                <input asp-for="ShippingInfo.FirstName" class="form-control" />
+                <span asp-validation-for="ShippingInfo.FirstName" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ShippingInfo.LastName" class="form-label"></label>
+                <input asp-for="ShippingInfo.LastName" class="form-control" />
+                <span asp-validation-for="ShippingInfo.LastName" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ShippingInfo.Address1" class="form-label"></label>
+                <input asp-for="ShippingInfo.Address1" class="form-control" />
+                <span asp-validation-for="ShippingInfo.Address1" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ShippingInfo.Municipality" class="form-label"></label>
+                <input asp-for="ShippingInfo.Municipality" class="form-control" />
+                <span asp-validation-for="ShippingInfo.Municipality" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ShippingInfo.ShippingPhone" class="form-label"></label>
+                <input asp-for="ShippingInfo.ShippingPhone" class="form-control" />
+                <span asp-validation-for="ShippingInfo.ShippingPhone" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ShippingInfo.Email" class="form-label"></label>
+                <input asp-for="ShippingInfo.Email" class="form-control" />
+                <span asp-validation-for="ShippingInfo.Email" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ShippingInfo.DeliveryMethod" class="form-label"></label>
+                <select asp-for="ShippingInfo.DeliveryMethod" class="form-control">
+                    <option value="">-- Select --</option>
+                    <option value="Standard">Standard</option>
+                    <option value="Express">Express</option>
+                </select>
+                <span asp-validation-for="ShippingInfo.DeliveryMethod" class="text-danger"></span>
+            </div>
+
+        </form>
+    </div>
+
+        @* <div class="alert alert-warning">Shipping info not available. Please fill the form again.</div> *@
+  
+    <div class="mb-4">
+        <h4>Items in Your Cart</h4>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Size</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model!.CartItems!.Any())
+                {
+                    foreach (var item in Model!.CartItems!)
+                    {
+                        <tr>
+                            <td>@item.ProductName</td>
+                            <td>@item.Size</td>
+                            <td>@item.Quantity</td>
+                            <td>$@item.Price</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4">Your cart is empty.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <a href="#" class="btn btn-success">PLACE ORDER</a>
+</div>

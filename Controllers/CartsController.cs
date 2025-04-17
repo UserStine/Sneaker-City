@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using Sneaker_City.Data;
+using Sneaker_City.Extensions;
+using Sneaker_City.Models;
+
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using Sneaker_City.Data;
-using Sneaker_City.Models;
+using Sneaker_City.Models.ViewModels;
+
 
 namespace Sneaker_City.Controllers
 {
@@ -19,146 +19,84 @@ namespace Sneaker_City.Controllers
             _context = context;
         }
 
-        // GET: Carts
-        public async Task<IActionResult> Index()
-        {
-            var applicationDbContext = _context.Cart.Include(c => c.Customer);
-            return View(await applicationDbContext.ToListAsync());
-        }
-
-        // GET: Carts/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var cart = await _context.Cart
-                .Include(c => c.Customer)
-                .FirstOrDefaultAsync(m => m.CartId == id);
-            if (cart == null)
-            {
-                return NotFound();
-            }
-
-            return View(cart);
-        }
-
-        // GET: Carts/Create
+        // GET: /Carts/Create
+        [HttpGet]
         public IActionResult Create()
         {
-            ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "CustomerId");
-            return View();
+            var cart = HttpContext.Session.GetObjectFromJson<List<CartItem>>("Carts") ?? new List<CartItem>();
+            return View(cart);
         }
 
-        // POST: Carts/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: /Carts/AddToCart
+        [HttpPost]
+        public IActionResult AddToCart(int productId, string size, int quantity)
+        {
+            var product = _context.Products.FirstOrDefault(p => p.ProductId == productId);
+            if (product == null || string.IsNullOrEmpty(size) || quantity <= 0)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            var cart = HttpContext.Session.GetObjectFromJson<List<CartItem>>("Carts") ?? new List<CartItem>();
+
+            var existingItem = cart.FirstOrDefault(c => c.ProductId == productId && c.Size == size);
+            if (existingItem != null)
+            {
+                existingItem.Quantity += quantity;
+            }
+            else
+            {
+                cart.Add(new CartItem
+                {
+                    ProductId = product.ProductId,
+                    Size = size,
+                    ProductName = $"{product.Brand} {product.Model}",
+                    ImageUrl = product.ImageUrl,
+                    Price = product.Price,
+                    Quantity = quantity
+                });
+            }
+
+            HttpContext.Session.SetObjectAsJson("Carts", cart);
+            return RedirectToAction("Create");
+        }
+
+        // GET: /Carts/Index (Shipping form)
+        [HttpGet]
+        public IActionResult Index()
+        {
+            return View(); // Shipping form view
+        }
+
+        // POST: /Carts/Index (Submit shipping info)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CartId,CustomerId,CreatedAt")] Cart cart)
+        public IActionResult Index(ShippingInfo shippingInfo)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _context.Add(cart);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return View(shippingInfo);
             }
-            ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "CustomerId", cart.CustomerId);
-            return View(cart);
+
+            HttpContext.Session.SetObjectAsJson("ShippingInfo", shippingInfo);
+            return RedirectToAction("Checkout");
         }
 
-        // GET: Carts/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        // GET: /Carts/Checkout
+        [HttpGet]
+        public IActionResult Checkout()
         {
-            if (id == null)
+            var cart = HttpContext.Session.GetObjectFromJson<List<CartItem>>("Carts") ?? new List<CartItem>();
+            ShippingInfo shippingInfo = new ShippingInfo();
+
+            var viewModel = new CheckoutViewModel()
             {
-                return NotFound();
-            }
+                CartItems = cart,
+                ShippingInfo = shippingInfo 
+            };
 
-            var cart = await _context.Cart.FindAsync(id);
-            if (cart == null)
-            {
-                return NotFound();
-            }
-            ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "CustomerId", cart.CustomerId);
-            return View(cart);
-        }
+            return View(viewModel);
 
-        // POST: Carts/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CartId,CustomerId,CreatedAt")] Cart cart)
-        {
-            if (id != cart.CartId)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(cart);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CartExists(cart.CartId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "CustomerId", cart.CustomerId);
-            return View(cart);
-        }
-
-        // GET: Carts/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var cart = await _context.Cart
-                .Include(c => c.Customer)
-                .FirstOrDefaultAsync(m => m.CartId == id);
-            if (cart == null)
-            {
-                return NotFound();
-            }
-
-            return View(cart);
-        }
-
-        // POST: Carts/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var cart = await _context.Cart.FindAsync(id);
-            if (cart != null)
-            {
-                _context.Cart.Remove(cart);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool CartExists(int id)
-        {
-            return _context.Cart.Any(e => e.CartId == id);
         }
     }
 }

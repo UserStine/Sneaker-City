@@ -17,6 +17,7 @@ namespace Sneaker_City.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+      
 
             modelBuilder.Entity<Product>()
        .Property(p => p.Price)

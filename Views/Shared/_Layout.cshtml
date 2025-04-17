@@ -4,21 +4,21 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Sneaker_City</title>
+
+    <!-- Local CSS -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Sneaker_City.styles.css" asp-append-version="true" />
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    @RenderSection("Styles", required: false) <!-- ✅ This fixes the error -->
+    <!-- CDN CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    @RenderSection("Styles", required: false)
 </head>
 
-<!-- Before </body> -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 <body>
     <header>
-        @* Place this in _Layout.cshtml or a partial view like _Navbar.cshtml *@
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container">
                 <a class="navbar-brand font-weight-bold" href="@Url.Action("Index", "Home")">AllRun</a>
@@ -30,15 +30,13 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav mr-auto">
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="#home">Home</a>
+                            <a class="nav-link text-white" href="@Url.Action("Index", "Home")#home">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="#about">About</a>
-                        </li>
-
+                            <a class="nav-link text-white" href="@Url.Action("Index", "Home")#about">About</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="#categories">Categories</a>
+                            <a class="nav-link text-white" href="@Url.Action("Index", "Home")#categories">Categories</a>
                         </li>
                     </ul>
 
@@ -48,25 +46,41 @@
                                 <i class="fas fa-user-circle fa-lg"></i>
                             </a>
                         </li>
+
+                        <li class="nav-item">
+                            <a href="@Url.Action("Create", "Carts")" class="nav-link text-light position-relative">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span class="badge badge-warning position-absolute top-0 start-100 translate-middle">
+                                    @(ViewData["CartItemCount"] ?? 0)
+                                </span>
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
         </nav>
-
     </header>
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <footer class="border-top footer text-muted mt-5">
         <div class="container">
             &copy; 2025 - Sneaker_City - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+
+    <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- CDN Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

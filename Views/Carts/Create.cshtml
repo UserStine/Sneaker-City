@@ -1,37 +1,97 @@
-﻿@model Sneaker_City.Models.Cart
+﻿@model List<Sneaker_City.Models.CartItem>
 
 @{
     ViewData["Title"] = "Create";
 }
 
-<h1>Create</h1>
+<style>
+    body {
+        background-color: #121212; /* Same as homepage dark background */
+    }
 
-<h4>Cart</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="CustomerId" class="control-label"></label>
-                <select asp-for="CustomerId" class ="form-control" asp-items="ViewBag.CustomerId"></select>
+    .table thead {
+        background-color: #333;
+        color: #fff;
+    }
+
+    .table td, .table th {
+        vertical-align: middle;
+    }
+
+    .card {
+        background-color: #1e1e1e;
+    }
+
+    .card-header, .card-body {
+        color: #fff;
+    }
+
+    .alert-warning {
+        background-color: #ffc107;
+        color: #212529;
+    }
+</style>
+
+<div class="container mt-5">
+    <h1 class="text-center text-light">My Cart</h1>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-warning text-center mt-4">
+            Your cart is empty.
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-8">
+                <table class="table table-bordered text-light">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Size</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <img src="@item.ImageUrl" alt="@item.ProductName" style="width: 50px; height: 50px; object-fit: cover;" class="img-fluid rounded shadow-sm" />
+                                    <span class="ms-2">@item.ProductName</span>
+                                </td>
+                                <td>@item.Size</td>
+                                <td>$@item.Price</td>
+                                <td>@item.Quantity</td>
+                                <td>$@(item.Price * item.Quantity)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
-            <div class="form-group">
-                <label asp-for="CreatedAt" class="control-label"></label>
-                <input asp-for="CreatedAt" class="form-control" />
-                <span asp-validation-for="CreatedAt" class="text-danger"></span>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header border-bottom border-secondary">
+                        <h5 class="mb-0">Order Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>
+                            Subtotal:
+                            <strong>
+                                $@Model.Sum(item => item.Price * item.Quantity)
+                            </strong>
+                        </p>
+                        <p>Shipping: Free</p>
+                        <p class="fw-bold">Total: $@Model.Sum(item => item.Price * item.Quantity)</p>
+                      <a class="btn btn-warning w-100 mt-2" href="@Url.Action("Checkout", "Carts")">CHECKOUT</a>
+
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
+        </div>
+    }
 </div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}

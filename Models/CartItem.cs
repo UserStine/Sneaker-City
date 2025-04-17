@@ -1,16 +1,17 @@
-﻿namespace Sneaker_City.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Sneaker_City.Models
 {
+    [NotMapped] 
     public class CartItem
     {
-        public int CartItemId { get; set; } // ✅ This is your primary key
+        public int ProductId { get; set; }
+        public string Size { get; set; }
+        public int Quantity { get; set; } = 1;
+        public string ProductName { get; set; }
+        public string ImageUrl { get; set; }
+        public decimal Price { get; set; }
 
-        public int CartId { get; set; }
-        public Cart Cart { get; set; }
 
-        public int ProductVariantId { get; set; }
-        public ProductVariant ProductVariant { get; set; }
-
-        public int Quantity { get; set; }
-    }
-
+        }
 }
